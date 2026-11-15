@@ -56,8 +56,6 @@ En local se usan los valores predeterminados. Para cambiar la URL de la API en V
 
 Para personalizar el backend en PowerShell, definí la variable antes de ejecutar Uvicorn, por ejemplo `$env:AGRODSS_POWER_READ_TIMEOUT_S = '90'`.
 
-## Preparar un despliegue futuro
+## Despliegue
 
-1. En Render, configurá un Web Service Python con raíz `backend`, instalación `pip install -r requirements.txt`, inicio `uvicorn app.main:app --host 0.0.0.0 --port $PORT` y ruta de salud `/api/v1/health`. [Guía de FastAPI en Render](https://render.com/docs/deploy-fastapi)
-2. En Cloudflare Pages, configurá la raíz `frontend`, el comando `npm run build`, el directorio de salida `dist` y Node.js 24 para la compilación. Definí `VITE_API_BASE_URL` con la URL pública de Render seguida de `/api/v1`. [Configuración de compilación de Cloudflare Pages](https://developers.cloudflare.com/pages/configuration/build-configuration/)
-3. En Render, agregá el origen HTTPS de Pages a `AGRODSS_CORS_ORIGINS` y comprobá una simulación desde la URL pública.
+Seguí [DEPLOY.md](DEPLOY.md) para publicar FastAPI en Render y React en Cloudflare Pages. Para ejecutar `npm run build`, definí `VITE_API_BASE_URL` con la URL HTTPS pública de la API seguida de `/api/v1`. El arranque local usa el proxy de Vite.

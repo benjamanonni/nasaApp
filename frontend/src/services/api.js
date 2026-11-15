@@ -3,7 +3,7 @@
 
 const DEFAULT_BASE_URL = "/api/v1";
 
-export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
 
 /** Error of the service, already normalised to the single error envelope of the contract. */
 export class ApiError extends Error {
