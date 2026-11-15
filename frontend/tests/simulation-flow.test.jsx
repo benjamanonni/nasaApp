@@ -6,6 +6,7 @@ import { rotations } from "../src/data/demo.js";
 import { parcels } from "../src/data/parcels.js";
 import { createSimulationRunner } from "../src/services/api.js";
 import { demoPreparation } from "../src/workspaces/preparation.js";
+import { ReportContent } from "../src/workspaces/ReportWorkspace.jsx";
 import { emptyDraft } from "../src/workspaces/session.js";
 import { exampleSimulation, simulationContext, startSimulation } from "../src/workspaces/simulation.js";
 import { SimulationRunPanel } from "../src/workspaces/SimulationResults.jsx";
@@ -57,6 +58,16 @@ describe("single-action simulation", () => {
       identity: { latitude: "-33.68" },
       simulationRun: { example: true, request: payload, phase: "connecting" },
     });
+  });
+
+  it("renders the report immediately after applying the example without an optional fallow value", () => {
+    const partial = { ...emptyDraft, soil: { fallowKc: { value: "0.5" } } };
+    const { changes } = exampleSimulation({ parcel, draft: partial, strategies }, () => true);
+    expect(changes.soil).not.toHaveProperty("fallowKc");
+    const html = renderToStaticMarkup(<ReportContent parcel={parcel} referenceParcel={parcel}
+      draft={{ ...partial, ...changes }} strategies={strategies} comparisonIds={initialComparison}
+      parcelRotations={[]} selected={strategies[0]} scenario="Histórico · ejemplo" />);
+    expect(html).toContain("Propiedades con unidad y fuente");
   });
 
   it("links to incomplete inputs and preserves them when example replacement is declined", async () => {

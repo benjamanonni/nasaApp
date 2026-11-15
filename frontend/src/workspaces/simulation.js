@@ -38,10 +38,11 @@ export function exampleSimulation({ parcel, draft, strategies }, confirmReplace)
   if (current.hasInputs && !confirmReplace()) return null;
 
   const example = demoPreparation(emptyDraft);
+  const { fallowKc: _fallowKc, ...soil } = draft.soil;
   const changes = {
     ...example,
     identity: { ...draft.identity, ...example.identity },
-    soil: { ...draft.soil, ...example.soil, fallowKc: undefined },
+    soil: { ...soil, ...example.soil },
     comparisonIds: initialComparison,
   };
   const context = simulationContext({
