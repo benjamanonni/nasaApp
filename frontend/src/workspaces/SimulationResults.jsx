@@ -26,17 +26,22 @@ export function SimulationError({ error }) {
 export function SimulationRunPanel({ simulation, onRun, onLoadDemo, onCheckService, service }) {
   const { status, issues, run, request } = simulation;
   const running = status === "running";
+  const connecting = running && ["connecting", "waking"].includes(run?.phase);
   return <div className="simulation-run">
     <div className="strategy-actions">
       <button type="button" className="work-button primary" disabled={running || issues.length > 0 || !onRun} onClick={onRun}>
-        {running ? "Ejecutando simulación…" : "Ejecutar simulación (NASA POWER)"}</button>
+        {connecting ? "Conectando con el servicio de cálculo…" : running ? "Ejecutando simulación…" : "Ejecutar simulación (NASA POWER)"}</button>
       {onLoadDemo && <button type="button" className="work-button" disabled={running} onClick={onLoadDemo}>Cargar entradas de ejemplo</button>}
-      {onCheckService && <button type="button" className="work-button" onClick={onCheckService}>Comprobar servicio de cálculo</button>}
+      {onCheckService && <button type="button" className="work-button" disabled={running} onClick={onCheckService}>
+        {(service ? !service.startsWith("Servicio disponible") : status === "error") ? "Reintentar conexión" : "Comprobar servicio de cálculo"}</button>}
     </div>
     <Status tone={status === "stale" || status === "error" ? "warning" : "neutral"}>
-      {STATUS_LABELS[status]}{run?.executedAt ? ` · Ejecutada el ${run.executedAt.slice(0, 16).replace("T", " ")} UTC` : ""}
+      {connecting ? "Preparando la conexión" : STATUS_LABELS[status]}{run?.executedAt ? ` · Ejecutada el ${run.executedAt.slice(0, 16).replace("T", " ")} UTC` : ""}
       {status === "none" ? ` · ${request.rotations.length} estrategia(s) y ${request.window.start_years.length} escenario(s) histórico(s) preparados.` : ""}
     </Status>
+    {connecting && <p className="work-note" role="status">{run.phase === "waking"
+      ? "El servicio todavía no responde. Puede estar iniciándose. Reintentando conexión…"
+      : "Conectando con el servicio de cálculo…"}</p>}
     {service && <p className="work-note" role="status">{service}</p>}
     {issues.length > 0 && <>
       <p className="work-note">Para ejecutar el motor falta completar:</p>

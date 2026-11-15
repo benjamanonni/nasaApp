@@ -8,12 +8,16 @@ es del servidor y sirve para ubicar la solicitud en el registro.
 
 from __future__ import annotations
 
+import logging
 import uuid
+from time import perf_counter
 
 from fastapi import FastAPI, Request
 from starlette.types import ASGIApp
 
 REQUEST_ID_HEADER = "X-Request-ID"
+SIMULATIONS_PATH = "/api/v1/simulations"
+logger = logging.getLogger("uvicorn.error.agrodss")
 
 
 def request_id_of(request: Request) -> str:
@@ -38,8 +42,16 @@ class RequestIdMiddleware:
         request_id = str(uuid.uuid4())
         scope.setdefault("state", {})["request_id"] = request_id
 
+        is_simulation = scope["path"] == SIMULATIONS_PATH and scope["method"] == "POST"
+        started = perf_counter()
+        status = 500
+        if is_simulation:
+            logger.info("Inicio POST %s request_id=%s", SIMULATIONS_PATH, request_id)
+
         async def send_with_id(message: dict) -> None:
+            nonlocal status
             if message["type"] == "http.response.start":
+                status = message["status"]
                 headers = [
                     (name, value)
                     for name, value in message.get("headers", [])
@@ -49,7 +61,14 @@ class RequestIdMiddleware:
                 message = {**message, "headers": headers}
             await send(message)  # type: ignore[operator]
 
-        await self.app(scope, receive, send_with_id)  # type: ignore[arg-type,misc]
+        try:
+            await self.app(scope, receive, send_with_id)  # type: ignore[arg-type,misc]
+        finally:
+            if is_simulation:
+                logger.info(
+                    "Fin POST %s status=%d duration_ms=%.0f request_id=%s",
+                    SIMULATIONS_PATH, status, (perf_counter() - started) * 1000, request_id,
+                )
 
 
 def install_request_id(app: FastAPI) -> None:

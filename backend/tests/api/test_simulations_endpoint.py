@@ -219,8 +219,14 @@ def test_error_an_unexpected_exception_gives_500_without_internal_details(
 
     monkeypatch.setattr(simulation_service, "compute_et0_series", boom)
     client, _ = make_client(Power())
-    response = client.post(URL, json=plan_request())
+    origin = "http://localhost:5173"
+    response = client.post(URL, json=plan_request(), headers={"Origin": origin})
     assert response.status_code == 500
+    assert response.headers["access-control-allow-origin"] == origin
+    assert response.headers["access-control-expose-headers"] == "X-Request-ID"
+    denied = client.post(URL, json=plan_request(), headers={"Origin": "https://untrusted.example"})
+    assert denied.status_code == 500
+    assert "access-control-allow-origin" not in denied.headers
     assert response.json()["error"]["code"] == "unexpected_error"
     assert "detalle interno" not in response.text and "Traceback" not in response.text
     assert response.headers["x-request-id"] == response.json()["error"]["request_id"]

@@ -271,7 +271,7 @@ async def handle_http_exception(request: Request, error: Exception) -> JSONRespo
 async def handle_unexpected(request: Request, error: Exception) -> JSONResponse:
     code = error.code if isinstance(error, AgroDSSError) else "unexpected_error"
     logger.exception("Error inesperado [request_id=%s]", request_id_of(request), exc_info=error)
-    return error_response(
+    response = error_response(
         request,
         status_code=500,
         category="internal",
@@ -279,6 +279,13 @@ async def handle_unexpected(request: Request, error: Exception) -> JSONResponse:
         message=messages.UNEXPECTED_ERROR,
         retryable=False,
     )
+    # Starlette's outer ServerErrorMiddleware handles these responses outside CORSMiddleware.
+    origin = request.headers.get("origin")
+    if origin and origin in request.app.state.cors_origins:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Expose-Headers"] = REQUEST_ID_HEADER
+        response.headers.add_vary_header("Origin")
+    return response
 
 
 def register_error_handlers(app: FastAPI) -> None:

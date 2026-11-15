@@ -18,11 +18,15 @@ import InterpretationWorkspace from "./workspaces/InterpretationWorkspace.jsx";
 import ReportWorkspace, { ReportContent } from "./workspaces/ReportWorkspace.jsx";
 import { demoPreparation } from "./workspaces/preparation.js";
 import { simulationContext } from "./workspaces/simulation.js";
-import { errorSummary, getCatalog, getHealth, postSimulation } from "./services/api.js";
+import { createSimulationRunner, errorSummary, getCatalog, waitForService } from "./services/api.js";
+import { clearStoredDrafts, loadStoredDrafts, saveStoredDrafts } from "./workspaces/draftStorage.js";
 import cropReference from "./data/crop-reference.json";
 
 const panels = { parcela: ParcelWorkspace, estrategias: ExploreWorkspace, economia: EconomyWorkspace,
   interpretacion: InterpretationWorkspace, informe: ReportWorkspace };
+
+const parcelIds = parcels.map(({ id }) => id);
+const browserStorage = () => typeof window === "undefined" ? undefined : window.localStorage;
 
 export default function App() {
   const [route, setRoute] = useState(() => readRoute(typeof window === "undefined" ? "" : window.location.hash));
@@ -30,7 +34,12 @@ export default function App() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [parcelInspection, setParcelInspection] = useState(false);
   const [activeHistoricalScenarioId] = useState(scenarios[0][0]);
-  const [drafts, setDrafts] = useState({});
+  const [storedDrafts] = useState(() => loadStoredDrafts(browserStorage, parcelIds, emptyDraft));
+  const [drafts, setDrafts] = useState(() => storedDrafts ?? {});
+  const [saveLocally, setSaveLocally] = useState(storedDrafts !== null);
+  const [storageWarning, setStorageWarning] = useState("");
+  const [runOnce] = useState(createSimulationRunner);
+  const serviceCheck = useRef(false);
   const [explorerOpen, setExplorerOpen] = useState(false);
   const restoreExplorerFocus = useRef(false);
   const [economicBaselines, setEconomicBaselines] = useState({});
@@ -90,6 +99,19 @@ export default function App() {
     });
   }, [activeParcelId, editorStrategyId]);
 
+  useEffect(() => {
+    if (saveLocally) {
+      setStorageWarning(saveStoredDrafts(browserStorage, drafts, parcelIds)
+        ? "" : "El navegador no pudo guardar las entradas. Exportá el análisis antes de recargar.");
+    }
+  }, [saveLocally, drafts]);
+
+  function toggleLocalSave(enabled) {
+    setSaveLocally(enabled);
+    if (!enabled) setStorageWarning(clearStoredDrafts(browserStorage)
+      ? "" : "El navegador no pudo quitar la copia local.");
+  }
+
   function patch(changes) {
 
     setDrafts((previous) => updateParcelDraft(previous, activeParcelId, () => changes));
@@ -138,28 +160,28 @@ export default function App() {
     if (issues.length || simulation.status === "running") return;
     const store = (run) => setDrafts((previous) => updateParcelDraft(previous, parcelId, () => ({
       simulationRun: { request, strategyMap, response: null, error: null, executedAt: null, ...run } })));
-    store({ status: "running" });
-    try {
-      const response = await postSimulation(request);
-      store({ status: "done", response, executedAt: new Date().toISOString() });
-    } catch (error) {
-      store({ status: "error", error: errorSummary(error), executedAt: new Date().toISOString() });
-    }
+    await runOnce(parcelId, request, store);
   }
 
   async function checkService() {
-    setServiceNotice("Comprobando el servicio de cálculo…");
+    if (serviceCheck.current) return;
+    serviceCheck.current = true;
+    setServiceNotice("Conectando con el servicio de cálculo…");
     try {
-      const [health, catalog] = await Promise.all([getHealth(), getCatalog()]);
+      const health = await waitForService({
+        onRetry: () => setServiceNotice("El servicio todavía no responde. Puede estar iniciándose. Reintentando conexión…"),
+      });
+      const catalog = await getCatalog();
       const sameCatalog = catalog.catalog_version === cropReference.catalog_version;
       setServiceNotice(`Servicio disponible (${health.status}) · Catálogo ${catalog.catalog_version} con ${catalog.crops.length} cultivos` +
         (sameCatalog ? "." : ` · Distinto del catálogo local ${cropReference.catalog_version}: revisá las referencias.`));
     } catch (error) {
       const { message, requestId } = errorSummary(error);
       setServiceNotice(message + (requestId ? ` · request_id ${requestId}` : ""));
+    } finally {
+      serviceCheck.current = false;
     }
   }
-
   function storeStrategy(strategy) {
     patch({ strategies: draft.strategies.some(({ id }) => id === strategy.id)
       ? draft.strategies.map((entry) => entry.id === strategy.id ? strategy : entry)
@@ -239,8 +261,13 @@ export default function App() {
             document.getElementById("parcel-inspector")?.focus();
           }}>Ir al inspector</a>}
           <Workspace {...workspaceProps} />
+          <div className="work-note">
+            <label><input type="checkbox" checked={saveLocally} onChange={(event) => toggleLocalSave(event.target.checked)} /> Guardar entradas básicas en este navegador</label>
+            <p>Guarda coordenadas, superficie, suelo y períodos históricos por parcela en este dispositivo. Para conservar el análisis completo, exportá el JSON desde Informe.</p>
+            {storageWarning && <p role="status">{storageWarning}</p>}
+          </div>
           <footer className="footer-note">{simulation.response ? "Resultados calculados por el motor AgroDSS (FAO-56 y FAO-33) con datos de NASA POWER: escenarios históricos descriptivos, no pronósticos."
-            : "Las cifras de referencia son ficticias hasta ejecutar la simulación."} Los datos declarados se conservan durante la sesión abierta.</footer>
+            : "Las cifras de referencia son ficticias hasta ejecutar la simulación."} Los datos de la sesión se conservan mientras la página está abierta.</footer>
         </main>
         {explorerOpen
           ? <EconomicExplorer parcel={parcel} scenario={scenario} selected={selected} strategies={strategies} draft={draft}

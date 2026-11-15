@@ -11,7 +11,7 @@ export default [
   },
   {
     files: ["src/**/*.{js,jsx}"],
-    languageOptions: { globals: { document: "readonly", window: "readonly", URLSearchParams: "readonly", URL: "readonly", Blob: "readonly", crypto: "readonly", fetch: "readonly", globalThis: "readonly" } },
+    languageOptions: { globals: { document: "readonly", window: "readonly", URLSearchParams: "readonly", URL: "readonly", Blob: "readonly", crypto: "readonly", fetch: "readonly", globalThis: "readonly", AbortController: "readonly", setTimeout: "readonly", clearTimeout: "readonly" } },
   },
   {
     files: ["tests/**/*.{js,jsx}"],

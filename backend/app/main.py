@@ -54,6 +54,7 @@ def create_app() -> FastAPI:
         version=MODEL_VERSION,
         summary=f"Contrato {CONTRACT_VERSION}",
     )
+    app.state.cors_origins = settings.cors_origins
     app.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.cors_origins),
