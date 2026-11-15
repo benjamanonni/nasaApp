@@ -1,7 +1,7 @@
 // Client of the AgroDSS backend (contract 1.0). The UI only sends inputs and shows results:
 // every agronomic calculation lives in the FastAPI service.
 
-const DEFAULT_BASE_URL = "http://localhost:8000/api/v1";
+const DEFAULT_BASE_URL = "/api/v1";
 
 export const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
 
