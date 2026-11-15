@@ -56,8 +56,8 @@ Vite incorpora `VITE_API_BASE_URL` al JavaScript del build. Cambiar el valor en 
 
 ## 5. Prueba pública
 
-- [ ] Abrí la URL de producción de Pages en una ventana privada. Revisá en **DevTools → Network** que carguen los recursos y que el catálogo y el estado se obtengan por HTTPS desde la URL de Render al pulsar **Explorar estrategias → Mesa comparativa → Comprobar servicio de cálculo**.
-- [ ] En **Mesa comparativa**, usá **Cargar entradas de demostración** si faltan datos, verificá que estén seleccionadas las rotaciones A, B y C y pulsá **Ejecutar simulación (NASA POWER)**. Confirmá que el `POST /api/v1/simulations` devuelve HTTP 200, aparecen resultados y la procedencia indica NASA POWER. Una ejecución controlada alcanza para esta comprobación.
+- [ ] Abrí la URL de producción de Pages en una ventana privada. Revisá en **DevTools → Network** que carguen los recursos y que el catálogo y el estado se obtengan por HTTPS desde la URL de Render al pulsar **Explorar estrategias → Mesa comparativa → Estado de conexión → Comprobar servicio de cálculo**.
+- [ ] En **Mesa comparativa**, pulsá **Probar con un caso de ejemplo** desde una sesión nueva para ejecutar las rotaciones A, B y C. Con datos completos, usá **Ejecutar simulación**. Confirmá que el `POST /api/v1/simulations` devuelve HTTP 200, aparecen resultados y la procedencia indica NASA POWER. Una ejecución controlada alcanza para esta comprobación.
 - [ ] Inspeccioná el `OPTIONS` del POST si aparece en Network. Debe autorizar el origen exacto de Pages y el header `Content-Type`. Comprobá que no haya errores de CORS o de contenido mixto y que la respuesta exponga `X-Request-ID`.
 - [ ] Revisá Economía e Informe con el resultado de la simulación. En **Informe → Gestión del análisis**, pulsá **Exportar datos de sesión (JSON)** y guardá el archivo antes de recargar.
 - [ ] Recargá una ruta de la interfaz, por ejemplo el fragmento `#informe/resumen`. El navegador solicita la raíz del sitio y React interpreta el fragmento.

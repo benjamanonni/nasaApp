@@ -2,12 +2,15 @@
 // comes from the response of POST /api/v1/simulations.
 import { selectedStrategies } from "./comparison.js";
 import { economicSummary } from "./economics.js";
-import { buildSimulationRequestPayload, contractStrategyMap, simulationRequestIssues } from "./preparation.js";
+import { buildSimulationRequestPayload, contractStrategyMap, demoPreparation, simulationRequestIssues } from "./preparation.js";
+
+import { emptyDraft } from "./session.js";
+import { initialComparison } from "./strategies/model.js";
 
 export const DEMO_LABEL = "Datos de ejemplo (sin ejecutar motor)";
 export const STATUS_LABELS = {
   none: "Sin ejecutar",
-  running: "Consultando NASA POWER y ejecutando el motor…",
+  running: "Solicitud enviada al motor · Consulta de NASA POWER…",
   current: "Resultados del motor vigentes",
   stale: "Desactualizada (pendiente de recalcular)",
   error: "La última ejecución no se completó",
@@ -20,8 +23,40 @@ export function simulationContext({ parcel, draft, strategies, comparisonIds }) 
   const economy = economicSummary(draft, compared);
   const request = buildSimulationRequestPayload(parcel, preparation, economy);
   const run = draft.simulationRun ?? null;
-  return { request, strategyMap: contractStrategyMap(compared), issues: simulationRequestIssues(preparation), economy, run,
+  const hasInputs = Object.values(draft.identity).some(Boolean)
+    || Object.values(draft.soil).some((row) => Object.values(row ?? {}).some(Boolean))
+    || Object.values(draft.historical ?? {}).some((value) => Array.isArray(value) ? value.length > 0 : Boolean(value))
+    || draft.prices.length > 0 || draft.costs.length > 0 || comparisonIds.join() !== initialComparison.join();
+  return { request, hasInputs, strategyMap: contractStrategyMap(compared), issues: simulationRequestIssues(preparation), economy, run,
     status: simulationStatus(run, request), response: run?.response ?? null };
+}
+
+export function exampleSimulation({ parcel, draft, strategies }, confirmReplace) {
+  const current = simulationContext({
+    parcel, draft, strategies, comparisonIds: draft.comparisonIds ?? initialComparison,
+  });
+  if (current.hasInputs && !confirmReplace()) return null;
+
+  const example = demoPreparation(emptyDraft);
+  const changes = {
+    ...example,
+    identity: { ...draft.identity, ...example.identity },
+    soil: { ...draft.soil, ...example.soil, fallowKc: undefined },
+    comparisonIds: initialComparison,
+  };
+  const context = simulationContext({
+    parcel, draft: { ...draft, ...changes }, strategies, comparisonIds: initialComparison,
+  });
+  return { context, changes };
+}
+
+export function startSimulation({ parcelId, context, run, save, changes, example }) {
+  if (context.issues.length || context.status === "running") return;
+  const { request, strategyMap } = context;
+  return run(parcelId, request, (state) => save({
+    ...(state.phase === "connecting" ? changes : {}),
+    simulationRun: { request, strategyMap, example, response: null, error: null, executedAt: null, ...state },
+  }));
 }
 
 /** `stale` when soil, window, strategies or economy changed after the run. */

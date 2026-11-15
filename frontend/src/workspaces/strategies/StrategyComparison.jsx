@@ -137,14 +137,16 @@ export function Results({ strategies, demoResults, metric, setMetric, inspect, s
 }
 
 export default function StrategyComparison({ strategies, comparisonIds, onToggle, inspection, inspect, demoResults, scenario, parcelName, draft, onOpenExplorer, explorerOpen,
-  simulation, serviceNotice, onRunSimulation, onCheckService, onLoadDemo }) {
+  simulation, serviceNotice, onRunSimulation, onCheckService, onRunExample }) {
   const [metric, setMetric] = useState("economy");
   const selected = selectedStrategies(strategies, comparisonIds);
   const context = comparisonContext(selected);
   return <>
     <Panel title="Mesa comparativa" description={[parcelName, "Dos campañas", scenario].filter(Boolean).join(" · ")}
-      actions={<button id="economic-explorer-trigger" type="button" className="work-button primary"
+      actions={<button id="economic-explorer-trigger" type="button" className="work-button"
         aria-expanded={explorerOpen} aria-controls={explorerOpen ? "economic-explorer" : undefined} onClick={onOpenExplorer}>Explorar precios y costos</button>}>
+      {simulation && <SimulationRunPanel simulation={simulation} service={serviceNotice} onRun={onRunSimulation}
+        onCheckService={onCheckService} onRunExample={onRunExample} />}
       <div className="strategy-actions">
         {strategies.map(({ id, name }) => {
           const included = comparisonIds.includes(id);
@@ -154,8 +156,6 @@ export default function StrategyComparison({ strategies, comparisonIds, onToggle
         })}
       </div>
       <p className="work-note" role="status">{selected.length} de 3 seleccionadas{selected.length === 3 ? " · Retirá una para agregar otra." : "."}</p>
-      {simulation && <SimulationRunPanel simulation={simulation} service={serviceNotice} onRun={onRunSimulation}
-        onCheckService={onCheckService} onLoadDemo={onLoadDemo} />}
       {selected.length < 2 && <Status tone="warning">Seleccioná al menos dos estrategias para compararlas.</Status>}
       <DataTable caption="Alternativas seleccionadas" columns={["Estrategia", "Secuencia", "Horizonte", "Revisión y resultados"]}
         rows={selected.map((strategy) => ({ id: strategy.id, selected: inspection.strategyId === strategy.id, cells: [

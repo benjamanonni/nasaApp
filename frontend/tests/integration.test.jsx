@@ -237,11 +237,11 @@ describe("Run state", () => {
     const demoResults = rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] }));
     const props = { strategies: templates, comparisonIds: ["A", "B", "C"], inspection: { strategyId: "A" }, demoResults, scenario: "Histórico · ejemplo", draft: demoDraft };
     const before = renderToStaticMarkup(<StrategyComparison {...props} simulation={context} />);
-    expect(before).toContain("Ejecutar simulación (NASA POWER)");
+    expect(before).toContain("Ejecutar simulación");
     expect(before).toContain(DEMO_LABEL);
-    expect(before).toContain("Sin ejecutar");
+    expect(before).toContain("Listo para ejecutar");
     const after = renderToStaticMarkup(<StrategyComparison {...props} simulation={{ ...context, run, response: exampleResponse, status: "current" }} />);
-    expect(after).toContain("Resultados del motor vigentes");
+    expect(after).toContain("Simulación completada");
     expect(after).not.toContain(DEMO_LABEL);
     expect(after).not.toContain("660.000");
   });
@@ -279,7 +279,7 @@ describe("Economy and interpretation with the engine", () => {
   const run = { status: "done", request: context.request, strategyMap: context.strategyMap, response: exampleResponse, error: null, executedAt: "2026-11-15T12:00:00.000Z" };
   const executed = { ...context, run, response: exampleResponse, status: "current" };
   const demoResults = rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] }));
-  const actions = { onRun: () => {}, onLoadDemo: () => {}, onCheckService: () => {} };
+  const actions = { onRun: () => {}, onRunExample: () => {}, onCheckService: () => {} };
   const props = (simulation) => ({ draft, patch: () => {}, parcel, scenario: "Histórico · ejemplo", parcelRotations: demoResults, selectedId: "A",
     strategies: templates, strategyBook: { strategies: templates }, engine: { simulation, ...actions } });
   const economy = (section, simulation) => renderToStaticMarkup(<EconomyWorkspace section={section} {...props(simulation)} />);
@@ -289,8 +289,8 @@ describe("Economy and interpretation with the engine", () => {
   it("asks to run the simulation, with the quick access, before there are results", () => {
     for (const html of [economy("comparacion", context), interpretation("resultados", context), interpretation("advertencias", context), interpretation("procedencia", context)]) {
       expect(html).toContain(RUN_PROMPT);
-      expect(html).toContain("Ejecutar simulación (NASA POWER)");
-      expect(html).toContain("Cargar entradas de ejemplo");
+      expect(html).toContain("Ejecutar simulación");
+      expect(html).toContain("Estado de conexión");
       expect(html).not.toMatch(stale);
     }
     expect(economy("comparacion", context)).toContain(DEMO_LABEL);
@@ -325,7 +325,7 @@ describe("Economy and interpretation with the engine", () => {
   it("warns that the results are stale and offers to recalculate", () => {
     const html = economy("comparacion", { ...executed, status: "stale" });
     expect(html).toContain("Desactualizada (pendiente de recalcular)");
-    expect(html).toContain("Ejecutar simulación (NASA POWER)");
+    expect(html).toContain("Ejecutar simulación");
     expect(html).toContain("Economía por rotación y escenario histórico (USD/ha)");
   });
 

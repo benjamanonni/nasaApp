@@ -151,27 +151,30 @@ export function buildSimulationRequestPayload(parcel, preparation, economicSumma
 export function simulationRequestIssues(preparation) {
   const { identity = {}, soil = {}, historical = {}, strategies = [] } = preparation;
   const issues = [];
-  const add = (where, message) => issues.push({ where, message });
-  if (numberValue(identity.latitude) === null || numberValue(identity.longitude) === null) add("Mi parcela · Identificación", "Completá la latitud y la longitud de la parcela.");
+  const add = (where, message, href) => issues.push({ where, message, href });
+  if (rangeError(identity.latitude, -90, 90) || rangeError(identity.longitude, -180, 180)) {
+    add("Mi parcela · Identificación", "Ingresá latitud entre −90 y 90 y longitud entre −180 y 180.", "#parcela/identificacion");
+  }
   const soilIssues = soilErrors(soil);
-  for (const [key, label] of soilDefinitions) if (soilIssues[key]) add("Mi parcela · Caracterización del suelo", `${label} · ${soilIssues[key]}`);
+  for (const [key, label] of soilDefinitions) if (soilIssues[key]) add("Mi parcela · Caracterización del suelo", `${label} · ${soilIssues[key]}`, "#parcela/suelo");
   const windows = historicalWindows(historical);
-  if (!windows.valid) add("Explorar estrategias · Clima histórico", Object.values(windows.errors)[0] || windows.rows.find(({ error }) => error)?.error || "Revisá los períodos históricos.");
-  if (!strategies.length) add("Mesa comparativa", "Seleccioná al menos una estrategia.");
+  if (!windows.valid) add("Explorar estrategias · Clima histórico", Object.values(windows.errors)[0] || windows.rows.find(({ error }) => error)?.error || "Revisá los períodos históricos.", "#estrategias/clima");
+  if (!strategies.length) add("Mesa comparativa", "Seleccioná al menos una estrategia.", "#estrategias/comparar");
   for (const strategy of strategies) {
+    const href = strategy.isTemplate ? "#estrategias/biblioteca" : `#estrategias/editor/${strategy.id}`;
     const cropStages = strategy.stages.filter(isCropStage);
-    if (!cropStages.length) add(strategy.name, "La estrategia no tiene cultivos.");
+    if (!cropStages.length) add(strategy.name, "La estrategia no tiene cultivos.", href);
     for (const stage of cropStages) {
       const where = `${strategy.name} · ${stageName(stage)}`;
       const data = stage.agronomy ?? {};
-      if (!CROP_MODEL_MAP[stage.cropId]) { add(where, "Sin modelo disponible para esta especie."); continue; }
-      if (![1, 2].includes(integerValue(data.sowing?.window_year)) || !recurringDate(data.sowing?.day, data.sowing?.month)) add(where, "Completá campaña relativa, día y mes de siembra.");
-      if (stage.kind === "commercial" && (numberValue(data.ym?.value) === null || data.ym.unit !== "t/ha")) add(where, "Indicá el rendimiento de referencia Ym en t/ha.");
+      if (!CROP_MODEL_MAP[stage.cropId]) { add(where, "Sin modelo disponible para esta especie.", href); continue; }
+      if (![1, 2].includes(integerValue(data.sowing?.window_year)) || !recurringDate(data.sowing?.day, data.sowing?.month)) add(where, "Completá campaña relativa, día y mes de siembra.", href);
+      if (stage.kind === "commercial" && (numberValue(data.ym?.value) === null || data.ym.unit !== "t/ha")) add(where, "Indicá el rendimiento de referencia Ym en t/ha.", href);
       const lengths = DURATION_KEYS.map((key) => data.durations?.[key]);
-      if (lengths.some(filled) && lengths.some((days) => integerValue(days) === null)) add(where, "Completá las cuatro duraciones con días enteros o dejalas vacías.");
-      if (filled(data.residue?.value) && numberValue(data.residue.value) === null) add(where, "La cobertura de rastrojos debe ser numérica.");
+      if (lengths.some(filled) && lengths.some((days) => integerValue(days) === null)) add(where, "Completá las cuatro duraciones con días enteros o dejalas vacías.", href);
+      if (filled(data.residue?.value) && numberValue(data.residue.value) === null) add(where, "La cobertura de rastrojos debe ser numérica.", href);
       for (const key of [...ADVANCED_KEYS, ...ROOT_KEYS]) {
-        if (filled(data.advanced?.[key]?.value) && numberValue(data.advanced[key].value) === null) add(where, `${key} · Ingresá un valor numérico o dejalo vacío.`);
+        if (filled(data.advanced?.[key]?.value) && numberValue(data.advanced[key].value) === null) add(where, `${key} · Ingresá un valor numérico o dejalo vacío.`, href);
       }
     }
   }

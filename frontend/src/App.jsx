@@ -16,8 +16,7 @@ import { duplicateStrategy, initialComparison, sequenceText, strategyTemplates, 
 import EconomyWorkspace from "./workspaces/EconomyWorkspace.jsx";
 import InterpretationWorkspace from "./workspaces/InterpretationWorkspace.jsx";
 import ReportWorkspace, { ReportContent } from "./workspaces/ReportWorkspace.jsx";
-import { demoPreparation } from "./workspaces/preparation.js";
-import { simulationContext } from "./workspaces/simulation.js";
+import { exampleSimulation, simulationContext, startSimulation } from "./workspaces/simulation.js";
 import { createSimulationRunner, errorSummary, getCatalog, waitForService } from "./services/api.js";
 import { clearStoredDrafts, loadStoredDrafts, saveStoredDrafts } from "./workspaces/draftStorage.js";
 import cropReference from "./data/crop-reference.json";
@@ -154,15 +153,21 @@ export default function App() {
     }
   }, [explorerOpen]);
 
-  async function runSimulation() {
-    const parcelId = activeParcelId;
-    const { request, strategyMap, issues } = simulation;
-    if (issues.length || simulation.status === "running") return;
-    const store = (run) => setDrafts((previous) => updateParcelDraft(previous, parcelId, () => ({
-      simulationRun: { request, strategyMap, response: null, error: null, executedAt: null, ...run } })));
-    await runOnce(parcelId, request, store);
+  function runSimulation() {
+    return startSimulation({
+      parcelId: activeParcelId, context: simulation, run: runOnce, save: patch,
+      example: simulation.run?.example && simulation.status !== "stale",
+    });
   }
 
+  function runExample() {
+    if (simulation.status === "running") return;
+    const example = exampleSimulation({ parcel, draft, strategies }, () => window.confirm(
+      "¿Usar el caso de ejemplo en esta parcela? Reemplaza coordenadas, parámetros del suelo para simular, períodos históricos, precios, costos y la selección de rotaciones. Las estrategias guardadas se conservan.",
+    ));
+    if (!example) return;
+    return startSimulation({ parcelId: activeParcelId, ...example, run: runOnce, save: patch, example: true });
+  }
   async function checkService() {
     if (serviceCheck.current) return;
     serviceCheck.current = true;
@@ -194,7 +199,7 @@ export default function App() {
     setInspectorOpen(true);
   }
 
-  const engine = { simulation, serviceNotice, onRun: runSimulation, onCheckService: checkService, onLoadDemo: () => patch(demoPreparation(draft)) };
+  const engine = { simulation, serviceNotice, onRun: runSimulation, onCheckService: checkService, onRunExample: runExample };
   const strategyBook = {
     strategies, comparisonIds, inspection, item, details: route.detail, missingItem: Boolean(route.strategyId && !item),
     onInspect: inspectStrategy,
@@ -221,7 +226,7 @@ export default function App() {
     },
     inspect: inspectStrategy,
     simulation, serviceNotice, onRunSimulation: runSimulation, onCheckService: checkService,
-    onLoadDemo: () => patch(demoPreparation(draft)),
+    onRunExample: runExample,
   };
 
   const report = { parcel, referenceParcel, draft, strategies, comparisonIds, parcelRotations, selected, scenario, periodLabel };
@@ -235,7 +240,7 @@ export default function App() {
     <>
       <WorkspaceHeader parcels={displayParcels} activeParcel={parcel} onSelectParcel={selectParcel}
         rotations={strategies} activeStrategy={selected} onSelectStrategy={inspectStrategy} localStrategyControls={localStrategyControls}
-        scenario={scenario} periodLabel={periodLabel} engineStatus={simulation.response ? simulation.status : undefined} />
+        periodLabel={periodLabel} engineStatus={simulation.response ? simulation.status : undefined} />
       <div className={`shell workspace-shell${explorerOpen ? " economy-editing" : ""}${showParcelContext ? " with-parcel-context" : ""}${inspectorOpen && !explorerOpen ? " with-inspector" : ""}`}>
         <Navigation activeWorkspace={workspace.id} />
         {showParcelContext && <ParcelSidebar parcel={parcel} facts={parcelFacts} onReview={() => setReviewOpen(true)} />}

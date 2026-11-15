@@ -163,7 +163,6 @@ body { font-size: 15px; font-variant-numeric: tabular-nums; }
   .workspace-brand { flex-basis: auto; }
   .workspace-brand strong { font-size: 23px; }
   .workspace-brand small { font-size: 10px; }
-  .scenario-control { display: none; }
   .workspace-controls { flex-wrap: wrap; gap: 8px; }
   .workspace-control { padding-left: 7px; }
   .workspace-control select { font-size: 12px; max-width: 48vw; }

@@ -1,6 +1,8 @@
 import { DataTable, Panel, Status } from "./Controls.jsx";
 import { DEMO_LABEL, STATUS_LABELS, cropName, formatValue, moneyUnit, rangeText, rotationLabel } from "./simulation.js";
 
+const exampleInputsNote = "Entradas de ejemplo · Parámetros hipotéticos y datos climáticos reales de NASA POWER.";
+
 const originLabels = { user: "Ingresado por el usuario", fao_reference: "Referencia FAO", team_default: "Decisión del equipo", system_default: "Definición del modelo" };
 const scopeLabels = { request: "Solicitud", rotation: "Rotación", crop: "Cultivo", fallow: "Barbecho", scenario: "Escenario", date: "Fecha" };
 
@@ -23,30 +25,43 @@ export function SimulationError({ error }) {
 }
 
 /** Button that runs the engine, with the state of the run and what is missing to run it. */
-export function SimulationRunPanel({ simulation, onRun, onLoadDemo, onCheckService, service }) {
-  const { status, issues, run, request } = simulation;
+export function SimulationRunPanel({ simulation, onRun, onRunExample, onCheckService, service }) {
+  const { status, issues, run, request, hasInputs } = simulation;
   const running = status === "running";
   const connecting = running && ["connecting", "waking"].includes(run?.phase);
+  const incomplete = issues.length > 0;
+  const fresh = incomplete && !hasInputs;
   return <div className="simulation-run">
-    <div className="strategy-actions">
-      <button type="button" className="work-button primary" disabled={running || issues.length > 0 || !onRun} onClick={onRun}>
-        {connecting ? "Conectando con el servicio de cálculo…" : running ? "Ejecutando simulación…" : "Ejecutar simulación (NASA POWER)"}</button>
-      {onLoadDemo && <button type="button" className="work-button" disabled={running} onClick={onLoadDemo}>Cargar entradas de ejemplo</button>}
-      {onCheckService && <button type="button" className="work-button" disabled={running} onClick={onCheckService}>
-        {(service ? !service.startsWith("Servicio disponible") : status === "error") ? "Reintentar conexión" : "Comprobar servicio de cálculo"}</button>}
+    <div className="strategy-actions simulation-actions">
+      {running || !incomplete ? <button type="button" className="work-button primary" disabled={running || !onRun} onClick={onRun}>
+        {running ? "Simulación en curso…" : "Ejecutar simulación"}</button>
+        : fresh ? <>
+          {onRunExample && <button type="button" className="work-button primary" onClick={onRunExample}>Probar con un caso de ejemplo</button>}
+          <a className="work-button" href="#parcela/identificacion">Usar datos de mi lote</a>
+        </> : <>
+          <a className="work-button primary" href={issues[0].href}>Completar datos para simular</a>
+          {onRunExample && <button type="button" className="work-button" onClick={onRunExample}>Probar con un caso de ejemplo</button>}
+        </>}
     </div>
-    <Status tone={status === "stale" || status === "error" ? "warning" : "neutral"}>
-      {connecting ? "Preparando la conexión" : STATUS_LABELS[status]}{run?.executedAt ? ` · Ejecutada el ${run.executedAt.slice(0, 16).replace("T", " ")} UTC` : ""}
-      {status === "none" ? ` · ${request.rotations.length} estrategia(s) y ${request.window.start_years.length} escenario(s) histórico(s) preparados.` : ""}
-    </Status>
-    {connecting && <p className="work-note" role="status">{run.phase === "waking"
-      ? "El servicio todavía no responde. Puede estar iniciándose. Reintentando conexión…"
-      : "Conectando con el servicio de cálculo…"}</p>}
-    {service && <p className="work-note" role="status">{service}</p>}
-    {issues.length > 0 && <>
-      <p className="work-note">Para ejecutar el motor falta completar:</p>
-      <ul className="work-list">{issues.map(({ where, message }, index) => <li key={index}><strong>{where}.</strong> {message}</li>)}</ul>
-    </>}
+    <div role="status">
+      <Status tone={status === "stale" || status === "error" ? "warning" : "neutral"}>
+        {connecting ? run.phase === "waking" ? "El servicio puede estar iniciándose. Reintentando conexión…" : "Preparando simulación · Conectando con el servicio de cálculo…"
+          : status === "current" ? "Simulación completada"
+            : status === "none" ? incomplete ? "Faltan datos para simular" : "Listo para ejecutar"
+              : STATUS_LABELS[status]}
+        {status === "none" && !incomplete && ` · ${request.rotations.length} estrategias · ${request.window.start_years.length} escenarios históricos`}
+      </Status>
+    </div>
+    {fresh && <p className="work-note">El caso usa parámetros hipotéticos y consulta datos climáticos reales de NASA POWER.</p>}
+    {incomplete && !fresh && <ul className="work-list">{issues.map(({ where, message, href }, index) =>
+      <li key={index}><a className="work-link" href={href}>{where}</a> · {message}</li>)}</ul>}
+    {run?.example && <p className="work-note">{exampleInputsNote}</p>}
+    {onCheckService && <details className="simulation-diagnostics">
+      <summary>Estado de conexión</summary>
+      <button type="button" className="work-button" disabled={running} onClick={onCheckService}>
+        {(service ? !service.startsWith("Servicio disponible") : status === "error") ? "Reintentar conexión" : "Comprobar servicio de cálculo"}</button>
+      {service && <p className="work-note" role="status">{service}</p>}
+    </details>}
     {simulation.economy.unassignedCosts.length > 0 && <CostAssignment economy={simulation.economy} onlyExcluded />}
     {simulation.economy.incompatible && <Status tone="warning">Hay precios y costos en monedas distintas ({simulation.economy.currencies.join(", ")}). Se envían sin datos económicos y el motor informará el margen como no calculado.</Status>}
     {status !== "running" && <SimulationError error={run?.error} />}
@@ -151,6 +166,7 @@ export default function SimulationResults({ run, status, strategies, summary = f
   return <Panel title="Resultados del motor · FAO-56 y FAO-33 con NASA POWER"
     description={`Contrato ${response.contract_version} · modelo ${response.model_version} · solicitud ${response.request_id}`}>
     {status === "stale" && <Status tone="warning">{STATUS_LABELS.stale}. Las entradas cambiaron después de esta corrida: los resultados corresponden a las entradas anteriores.</Status>}
+    {run.example && <p className="work-note">{exampleInputsNote}</p>}
     <RangeTables run={run} strategies={strategies} />
     {!summary && <>
       <h3>Escenarios históricos</h3><ScenarioTable response={response} />
@@ -197,7 +213,7 @@ export const RUN_PROMPT = "Ejecutá la simulación con NASA POWER para ver los r
 export function EngineGate({ engine, children }) {
   const simulation = engine?.simulation;
   const panel = simulation && <SimulationRunPanel simulation={simulation} service={engine.serviceNotice} onRun={engine.onRun}
-    onLoadDemo={engine.onLoadDemo} onCheckService={engine.onCheckService} />;
+    onRunExample={engine.onRunExample} onCheckService={engine.onCheckService} />;
   if (!simulation?.response) return <>
     <Status tone="warning">{RUN_PROMPT}</Status>
     {panel}
@@ -208,6 +224,7 @@ export function EngineGate({ engine, children }) {
       <Status tone="warning">{STATUS_LABELS.stale}. Los resultados corresponden a las entradas de la última ejecución.</Status>
       {panel}
     </>}
+    {simulation.status === "current" && simulation.run?.example && <p className="work-note">{exampleInputsNote}</p>}
     {children}
   </>;
 }

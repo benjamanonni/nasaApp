@@ -35,3 +35,12 @@
 .workspace-shell .main:focus-visible { outline: 2px solid var(--lime); outline-offset: -2px; }
 
 .strategy-axis .strategy-reference-date { min-height: 26px; padding: 2px 6px; font-size: 11px; font-variant-numeric: tabular-nums; }
+
+.simulation-diagnostics { margin: 8px 0; }
+.simulation-diagnostics summary { width: fit-content; padding: 6px 0; cursor: pointer; }
+.simulation-diagnostics .work-button { margin: 4px 0; }
+@media (max-width: 700px) {
+  .simulation-actions { align-items: stretch; flex-direction: column; }
+  .simulation-actions .work-button { min-height: 44px; justify-content: center; text-align: center; }
+  .simulation-diagnostics summary { min-height: 44px; padding: 12px 0; }
+}

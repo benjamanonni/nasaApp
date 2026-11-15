@@ -1,4 +1,4 @@
-export default function WorkspaceHeader({ parcels, activeParcel, onSelectParcel, rotations, activeStrategy, onSelectStrategy, localStrategyControls, scenario, periodLabel, engineStatus }) {
+export default function WorkspaceHeader({ parcels, activeParcel, onSelectParcel, rotations, activeStrategy, onSelectStrategy, localStrategyControls, periodLabel, engineStatus }) {
   return (
     <header className="workspace-top" id="overview">
       <a className="workspace-brand" href="#overview" aria-label="AgroDSS, inicio">
@@ -16,9 +16,6 @@ export default function WorkspaceHeader({ parcels, activeParcel, onSelectParcel,
             {parcels.map(({ id, name, displayId }) => <option value={id} key={id}>{name} · {displayId}</option>)}
           </select>
         </label>
-        <div className="workspace-control scenario-control">
-          <span>Escenario</span><strong>{engineStatus ? "Histórico · NASA POWER" : scenario}</strong>
-        </div>
         {localStrategyControls ? <div className="workspace-control">
           <span>Rotación activa</span><strong>{activeStrategy.name}</strong>
         </div> : <label className="workspace-control">
