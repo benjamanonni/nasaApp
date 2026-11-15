@@ -22,7 +22,7 @@ export const strategyGroups = [
   ["Analizar", ["clima", "agua", "produccion"]],
 ];
 
-export const scenarios = [["historical", "Histórico · demo"]];
+export const scenarios = [["historical", "Histórico · ejemplo"]];
 const legacyRoutes = { "estrategias/alternativas": "#estrategias/comparar", rotations: "#estrategias/comparar", metrics: "#economia/comparacion", sources: "#interpretacion/procedencia",
   "parcel-context": "#parcela/mapa", "parcel-inspector": "#estrategias/comparar" };
 

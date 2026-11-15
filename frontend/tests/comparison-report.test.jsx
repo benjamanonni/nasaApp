@@ -13,7 +13,7 @@ describe("Comparison report", () => {
     costs: [{ id: "mixed", amount: "45", currency: "ARS", unit: "USD/ha" }] };
   const parcel = parcelWithIdentity(referenceParcel, draft.identity);
   const custom = { ...blankStrategy(parcel.id, "custom"), name: "Sorgo experimental", sequence: "Sorgo" };
-  const props = { parcel, referenceParcel, draft, selected: custom, scenario: "Histórico · demo", comparisonIds: ["B", custom.id],
+  const props = { parcel, referenceParcel, draft, selected: custom, scenario: "Histórico · ejemplo", comparisonIds: ["B", custom.id],
     strategies: [...strategyTemplates(rotations, parcel), custom],
     parcelRotations: rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] })) };
 

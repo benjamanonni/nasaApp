@@ -4,7 +4,7 @@ import { selectedStrategies } from "./comparison.js";
 import { economicSummary } from "./economics.js";
 import { buildSimulationRequestPayload, contractStrategyMap, simulationRequestIssues } from "./preparation.js";
 
-export const DEMO_LABEL = "Demostración (sin ejecutar motor)";
+export const DEMO_LABEL = "Datos de ejemplo (sin ejecutar motor)";
 export const STATUS_LABELS = {
   none: "Sin ejecutar",
   running: "Consultando NASA POWER y ejecutando el motor…",

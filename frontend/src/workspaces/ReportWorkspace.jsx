@@ -75,13 +75,13 @@ export function ReportContent(props) {
           !simulation.response ? status : Object.values(simulation.run.strategyMap).includes(strategy.id) ? "Calculado por el motor" : "Fuera de la última ejecución"],
       }))} />
     {simulation.response ? <SimulationResults run={simulation.run} status={simulation.status} strategies={strategies} /> : <>
-    <DataTable caption="Indicadores disponibles · Referencia de demostración · Dos campañas" numericColumns={[2, 3, 4, 5, 6]}
+    <DataTable caption="Indicadores disponibles · Referencia de ejemplo · Dos campañas" numericColumns={[2, 3, 4, 5, 6]}
       columns={["Estrategia", "Estado", "Ingresos (ARS/ha)", "Costos (ARS/ha)", "Margen (ARS/ha)", "Déficit (mm)", "Cultivo vivo (meses)"]}
       rows={rows.map(({ strategy, demonstration: demo, status }) => ({ id: strategy.id, cells: [strategy.name, status,
         demo ? formatMoney(demo.income) : "Pendiente", demo ? formatMoney(demo.cost) : "Pendiente",
         demo ? formatMoney(demo.margin) : "Pendiente", demo ? formatNumber(demo.deficit) : "Pendiente",
         demo ? formatNumber(demo.cover) : "Pendiente"] }))} />
-    <DataTable caption="Rendimientos disponibles (t/ha) · Referencia de demostración · Dos campañas"
+    <DataTable caption="Rendimientos disponibles (t/ha) · Referencia de ejemplo · Dos campañas"
       numericColumns={yieldColumns.map((_, index) => index + 1)} columns={["Estrategia", ...yieldColumns.map(([, label]) => label)]}
       rows={rows.filter(({ demonstration }) => demonstration).map(({ strategy, demonstration }) => ({
         id: strategy.id,

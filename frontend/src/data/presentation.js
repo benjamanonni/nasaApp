@@ -17,7 +17,7 @@ export const metrics = [
   },
   {
     id: "water", label: "Agua", valueKey: "deficit", widthKey: "deficitWidth",
-    description: "Déficit hídrico ficticio por estrategia. Los valores son de demostración.",
+    description: "Déficit hídrico ficticio por estrategia. Los valores son de ejemplo.",
     title: "Déficit hídrico por alternativa — ejemplo",
     axis: "déficit hídrico ilustrativo (mm)",
     ticks: ["0 mm", "40 mm", "80 mm", "120 mm", "160 mm"],

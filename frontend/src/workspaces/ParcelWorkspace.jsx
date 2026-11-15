@@ -93,8 +93,8 @@ export default function ParcelWorkspace({ section, parcels, parcel, onSelectParc
     <Panel title="Identificación del lote" description="Datos declarados para la parcela activa. Podés dejar campos sin informar mientras preparás el análisis.">
       <FieldGrid fields={identityFields} values={draft.identity} errors={validateIdentity(draft.identity)}
         onChange={(key, value) => patch({ identity: { ...draft.identity, [key]: value } })} />
-      {draft.identity.production === "Con riego" && <Status tone="warning">El MVP solo representa sistemas de secano. Los escenarios de esta demo no incluyen riego.</Status>}
-      <p className="work-note">Los campos válidos se reflejan en la ficha y el informe. Las cifras de demostración quedan como referencia independiente.</p>
+      {draft.identity.production === "Con riego" && <Status tone="warning">El MVP solo representa sistemas de secano. Los escenarios de ejemplo no incluyen riego.</Status>}
+      <p className="work-note">Los campos válidos se reflejan en la ficha y el informe. Las cifras ficticias quedan como referencia independiente.</p>
     </Panel>
     </>
   );

@@ -46,7 +46,7 @@ export default function ParcelSidebar({ parcel, facts, onReview }) {
           ))}
         </div>
         <button type="button" className="review-btn" onClick={onReview}>
-          Consultar referencia de demostración <span aria-hidden="true">↗</span>
+          Consultar referencia de ejemplo <span aria-hidden="true">↗</span>
         </button>
       </div>
     </aside>

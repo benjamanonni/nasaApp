@@ -68,7 +68,7 @@ describe("Dynamic strategies", () => {
   it("shows missing economic results for custom crops and renders only chosen demonstration strategies", () => {
     const custom = saveStrategy(example);
     const html = renderToStaticMarkup(<StrategyComparison strategies={[...templates, custom]}
-      comparisonIds={["A", "C", custom.id]} inspection={{ strategyId: custom.id }} demoResults={demoResults} scenario="Histórico · demo" />);
+      comparisonIds={["A", "C", custom.id]} inspection={{ strategyId: custom.id }} demoResults={demoResults} scenario="Histórico · ejemplo" />);
     expect(calculationLabel(custom)).toContain("Sin modelo disponible");
     expect(html).toContain("Resultados económicos pendientes de cálculo");
     expect(html).toContain("2026-09-01");

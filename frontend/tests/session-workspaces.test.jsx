@@ -80,7 +80,7 @@ describe("Session data integrity", () => {
     const declared = { prices: [{ amount: "321" }], costs: [{ amount: "234" }] };
     const results = rotations.map((rotation) => ({ ...rotation, ...parcels[1].scenarios[rotation.id] }));
     const html = renderToStaticMarkup(<EconomicComparison rotations={results} selectedId="B" draft={declared} />);
-    expect(html).toContain("Referencia de demostración · ARS/ha · Dos campañas");
+    expect(html).toContain("Referencia de ejemplo · ARS/ha · Dos campañas");
     expect(html).toContain("600.000");
     expect(html).not.toContain("321");
   });

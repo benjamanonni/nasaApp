@@ -102,7 +102,7 @@ export function Results({ strategies, demoResults, metric, setMetric, inspect, s
   const available = comparisonRows(compatible, demoResults).flatMap(({ strategy, demonstration }) =>
     demonstration ? [{ ...demonstration, label: strategy.name }] : []);
   const chartMetric = metrics.find(({ id }) => id === metric);
-  return <Panel title="Indicadores comparados" description={`${scenario} · Dos campañas. Las cifras de las plantillas son demostrativas.`}>
+  return <Panel title="Indicadores comparados" description={`${scenario} · Dos campañas. Las cifras de las plantillas son ficticias.`}>
     {visibleMetrics.length > 0 && <div className="strategy-actions" role="group" aria-label="Indicador comparado">
       {visibleMetrics.map(([id, label]) => <button type="button" className="work-button" aria-pressed={metric === id}
         key={id} onClick={() => setMetric(id)}>{label}</button>)}
@@ -128,10 +128,10 @@ export function Results({ strategies, demoResults, metric, setMetric, inspect, s
     {available.length > 0 && metric !== "production" && <>
       <h3>{chartMetric.title}</h3>
       <ComparisonChart metric={chartMetric} rotations={available} selectedId={selectedId} />
-      <p className="work-note">Fuente: valores de demostración precargados. El gráfico incluye las estrategias con cifras disponibles.</p>
+      <p className="work-note">Fuente: valores ficticios precargados. El gráfico incluye las estrategias con cifras disponibles.</p>
     </>}
     {metric === "soil" && <p className="work-note">El barbecho es una etapa de manejo y puede conservar rastrojos. La exposición al viento se calcula al ejecutar la simulación.</p>}
-    {metric === "water" && <p className="work-note">El déficit de demostración es un valor agregado. El balance hídrico real se calcula al ejecutar la simulación.</p>}
+    {metric === "water" && <p className="work-note">El déficit de ejemplo es un valor agregado. El balance hídrico real se calcula al ejecutar la simulación.</p>}
     {metric === "production" && <p className="work-note">Las cifras de soja corresponden a primera en Barbecho y a segunda en Doble cultivo. En Cobertura la soja también es de primera.</p>}
   </Panel>;
 }
@@ -204,7 +204,7 @@ export function ContextualInspector({ strategy, inspection, simulation, onStage,
             <div><dt>Fechas previstas</dt><dd>{dateLabel(stage.startDate)} → {dateLabel(stage.endDate)}</dd></div>
             <div><dt>Duración</dt><dd>{duration === null ? "Sin dato" : `${duration} días entre fechas`}</dd></div>
             <div><dt>Parámetros del cultivo</dt><dd>{stage.cropId === "custom" ? "Sin modelo disponible para esta especie" : "Los parámetros vacíos toman la referencia del catálogo al ejecutar"}</dd></div>
-            <div><dt>Validación</dt><dd>{strategy.isTemplate ? "Demostración · Sin calendario confirmado"
+            <div><dt>Validación</dt><dd>{strategy.isTemplate ? "Plantilla de ejemplo · Sin calendario confirmado"
               : Object.keys(validateStrategy(strategy).stageErrors[stage.id] ?? {}).length ? "Fechas o datos por completar" : "Datos registrados · Pendiente de revisión agronómica"}</dd></div>
             <div><dt>Observaciones</dt><dd>{stage.notes || "Sin observaciones"}</dd></div>
           </dl>
@@ -216,9 +216,9 @@ export function ContextualInspector({ strategy, inspection, simulation, onStage,
           <h3>{result.label}</h3>
           <dl className="work-readout">
             <div><dt>Valor</dt><dd>{result.shown} · {result.unit}</dd></div>
-            <div><dt>Fuente</dt><dd>Valores precargados de demostración</dd></div>
+            <div><dt>Fuente</dt><dd>Valores ficticios precargados</dd></div>
             <div><dt>Período</dt><dd>Dos campañas · Sin fecha puntual</dd></div>
-            <div><dt>Estado</dt><dd>Referencia de demostración. Ejecutá la simulación para ver el valor calculado.</dd></div>
+            <div><dt>Estado</dt><dd>Referencia de ejemplo. Ejecutá la simulación para ver el valor calculado.</dd></div>
             <div><dt>Entradas</dt><dd>{result.indicatorId === "deficit" ? "Sin series de suelo, clima ni demanda vinculadas a este valor." : "Datos de la plantilla, independientes de las entradas de la sesión."}</dd></div>
             {result.indicatorId === "deficit" && <div><dt>Alcance</dt><dd>Escenario ficticio de secano. Solo se dispone del agregado, sin desglose por día o etapa.</dd></div>}
           </dl>

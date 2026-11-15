@@ -240,7 +240,7 @@ export default function App() {
           }}>Ir al inspector</a>}
           <Workspace {...workspaceProps} />
           <footer className="footer-note">{simulation.response ? "Resultados calculados por el motor AgroDSS (FAO-56 y FAO-33) con datos de NASA POWER: escenarios históricos descriptivos, no pronósticos."
-            : "Las cifras de referencia son de demostración hasta ejecutar la simulación."} Los datos declarados se conservan durante la sesión abierta.</footer>
+            : "Las cifras de referencia son ficticias hasta ejecutar la simulación."} Los datos declarados se conservan durante la sesión abierta.</footer>
         </main>
         {explorerOpen
           ? <EconomicExplorer parcel={parcel} scenario={scenario} selected={selected} strategies={strategies} draft={draft}

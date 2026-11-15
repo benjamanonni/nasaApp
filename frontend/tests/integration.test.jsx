@@ -235,7 +235,7 @@ describe("Run state", () => {
 
   it("keeps the demonstration clearly labelled until the engine is run", () => {
     const demoResults = rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] }));
-    const props = { strategies: templates, comparisonIds: ["A", "B", "C"], inspection: { strategyId: "A" }, demoResults, scenario: "Histórico · demo", draft: demoDraft };
+    const props = { strategies: templates, comparisonIds: ["A", "B", "C"], inspection: { strategyId: "A" }, demoResults, scenario: "Histórico · ejemplo", draft: demoDraft };
     const before = renderToStaticMarkup(<StrategyComparison {...props} simulation={context} />);
     expect(before).toContain("Ejecutar simulación (NASA POWER)");
     expect(before).toContain(DEMO_LABEL);
@@ -258,7 +258,7 @@ describe("Run state", () => {
   });
 
   it("exports the session file with the exact contract request and the engine response", () => {
-    const props = { parcel, referenceParcel, strategies: templates, comparisonIds: ["A", "B", "C"], selected: templates[0], scenario: "Histórico · demo",
+    const props = { parcel, referenceParcel, strategies: templates, comparisonIds: ["A", "B", "C"], selected: templates[0], scenario: "Histórico · ejemplo",
       parcelRotations: rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] })) };
     const pending = buildReportPayload({ ...props, draft: demoDraft });
     expect(pending.contractRequest).toEqual(context.request);
@@ -269,7 +269,7 @@ describe("Run state", () => {
     expect(exportDraft({ ...demoDraft, simulationRun: run })).not.toHaveProperty("simulationRun");
     const report = renderToStaticMarkup(<ReportContent {...props} draft={{ ...demoDraft, simulationRun: run }} />);
     expect(report).toContain("Resultados del motor");
-    expect(report).not.toContain("Referencia de demostración");
+    expect(report).not.toContain("Referencia de ejemplo");
   });
 });
 
@@ -280,7 +280,7 @@ describe("Economy and interpretation with the engine", () => {
   const executed = { ...context, run, response: exampleResponse, status: "current" };
   const demoResults = rotations.map((rotation) => ({ ...rotation, ...referenceParcel.scenarios[rotation.id] }));
   const actions = { onRun: () => {}, onLoadDemo: () => {}, onCheckService: () => {} };
-  const props = (simulation) => ({ draft, patch: () => {}, parcel, scenario: "Histórico · demo", parcelRotations: demoResults, selectedId: "A",
+  const props = (simulation) => ({ draft, patch: () => {}, parcel, scenario: "Histórico · ejemplo", parcelRotations: demoResults, selectedId: "A",
     strategies: templates, strategyBook: { strategies: templates }, engine: { simulation, ...actions } });
   const economy = (section, simulation) => renderToStaticMarkup(<EconomyWorkspace section={section} {...props(simulation)} />);
   const interpretation = (section, simulation) => renderToStaticMarkup(<InterpretationWorkspace section={section} {...props(simulation)} />);
@@ -290,7 +290,7 @@ describe("Economy and interpretation with the engine", () => {
     for (const html of [economy("comparacion", context), interpretation("resultados", context), interpretation("advertencias", context), interpretation("procedencia", context)]) {
       expect(html).toContain(RUN_PROMPT);
       expect(html).toContain("Ejecutar simulación (NASA POWER)");
-      expect(html).toContain("Cargar entradas de demostración");
+      expect(html).toContain("Cargar entradas de ejemplo");
       expect(html).not.toMatch(stale);
     }
     expect(economy("comparacion", context)).toContain(DEMO_LABEL);
@@ -331,7 +331,7 @@ describe("Economy and interpretation with the engine", () => {
 
   it("lists the cost assignment next to the cost entries and in the explorer", () => {
     expect(economy("costos", context)).toContain("Costos fuera del cálculo");
-    const explorer = renderToStaticMarkup(<EconomicExplorer parcel={parcel} scenario="Histórico · demo" selected={templates[0]} strategies={templates} draft={draft}
+    const explorer = renderToStaticMarkup(<EconomicExplorer parcel={parcel} scenario="Histórico · ejemplo" selected={templates[0]} strategies={templates} draft={draft}
       baseline={{ prices: draft.prices, costs: draft.costs }} patch={() => {}} onClose={() => {}} engine={{ simulation: executed, ...actions }} />);
     expect(explorer).toContain("Rango del margen bruto por rotación (USD/ha)");
     expect(explorer).toContain("Unidad distinta de por hectárea (USD/lote)");

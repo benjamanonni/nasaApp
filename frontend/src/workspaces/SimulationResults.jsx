@@ -30,7 +30,7 @@ export function SimulationRunPanel({ simulation, onRun, onLoadDemo, onCheckServi
     <div className="strategy-actions">
       <button type="button" className="work-button primary" disabled={running || issues.length > 0 || !onRun} onClick={onRun}>
         {running ? "Ejecutando simulación…" : "Ejecutar simulación (NASA POWER)"}</button>
-      {onLoadDemo && <button type="button" className="work-button" disabled={running} onClick={onLoadDemo}>Cargar entradas de demostración</button>}
+      {onLoadDemo && <button type="button" className="work-button" disabled={running} onClick={onLoadDemo}>Cargar entradas de ejemplo</button>}
       {onCheckService && <button type="button" className="work-button" onClick={onCheckService}>Comprobar servicio de cálculo</button>}
     </div>
     <Status tone={status === "stale" || status === "error" ? "warning" : "neutral"}>

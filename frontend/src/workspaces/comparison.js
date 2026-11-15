@@ -7,7 +7,7 @@ export function selectedStrategies(strategies, ids) {
 export function comparisonRows(strategies, demoResults) {
   return strategies.map((strategy) => {
     const demonstration = strategy.isTemplate ? demoResults.find(({ id }) => id === strategy.id) ?? null : null;
-    return { strategy, demonstration, status: demonstration ? "Demostración" : "Sin ejecutar" };
+    return { strategy, demonstration, status: demonstration ? "Referencia ficticia" : "Sin ejecutar" };
   });
 }
 

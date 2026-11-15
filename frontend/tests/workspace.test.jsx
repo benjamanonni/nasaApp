@@ -61,7 +61,7 @@ describe("AgroDSS workspace", () => {
     expect(indicators).toContain('role="tabpanel" aria-labelledby="tab-economy"');
     expect(html).toContain("Estrategias seleccionadas en la mesa");
     expect(html).toContain('aria-labelledby="modalTitle"');
-    expect(html).toContain("Indicadores disponibles · Referencia de demostración · Dos campañas");
+    expect(html).toContain("Indicadores disponibles · Referencia de ejemplo · Dos campañas");
   });
 });
 

@@ -103,7 +103,7 @@ export default function InterpretationWorkspace({ section, draft, requestedIndic
       <Field label="Indicador" options={indicators.map(([id, label]) => [id, label])} value={indicatorId}
         onChange={(id) => setSelection({ route: requestedIndicator, id: id || "margin" })} />
       <h3>{title}</h3>
-      {evidence && <p className="work-note">{evidence.strategyName} · {evidence.label} · {evidence.shown} {evidence.unit} · Dos campañas · Referencia de demostración</p>}
+      {evidence && <p className="work-note">{evidence.strategyName} · {evidence.label} · {evidence.shown} {evidence.unit} · Dos campañas · Referencia de ejemplo</p>}
       <dl className="work-readout">{[["Qué representa", description], ["Unidad", unit ?? (response ? moneyUnit(response) : "moneda declarada/ha")], ["Entradas", inputs],
         ["Procedencia", response ? `Respuesta del motor · solicitud ${response.request_id}` : "Se calcula al ejecutar la simulación"], ["Modelo o procedimiento", method],
         ["Supuestos", "Secano, horizonte de dos campañas y parámetros de referencia no calibrados para el lote"],

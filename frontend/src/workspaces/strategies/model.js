@@ -18,7 +18,7 @@ export const initialComparison = ["A", "B", "C"];
 // Demonstration declarations of the three templates. They reproduce the documented example of the
 // contract 1.0 (backend/app/data/examples/simulation_request.json): inputs to run the demo, not
 // calibrated values. Every other parameter is left empty so the backend applies its reference.
-export const DEMO_SOURCE = "Ejemplo del contrato 1.0 · demostración, no calibrado";
+export const DEMO_SOURCE = "Ejemplo del contrato 1.0 · sin calibrar";
 const declared = (value, unit) => ({ value, unit, source: DEMO_SOURCE, basis: "Supuesto del usuario" });
 const sowing = (window_year, day, month) => ({ window_year, day, month });
 const durations = (initial, development, mid, late) => ({ initial, development, mid, late });
@@ -91,11 +91,11 @@ export function sequenceText(strategy) {
 export function strategyHorizon(strategy) {
   return strategy.firstCampaign && strategy.lastCampaign
     ? `Campañas ${strategy.firstCampaign}–${strategy.lastCampaign}`
-    : strategy.isTemplate ? "Dos campañas · demostración" : "Horizonte pendiente";
+    : strategy.isTemplate ? "Dos campañas · ejemplo" : "Horizonte pendiente";
 }
 
 export function reviewLabel(strategy) {
-  if (strategy.reviewStatus === "template") return "Plantilla de demostración";
+  if (strategy.reviewStatus === "template") return "Plantilla de ejemplo";
   return strategy.reviewStatus === "draft" ? "Borrador" : "Calendario pendiente de revisión agronómica";
 }
 

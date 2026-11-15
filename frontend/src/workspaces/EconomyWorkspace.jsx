@@ -39,7 +39,7 @@ export function EconomicComparison({ rotations, selectedId, onInspectResult }) {
       onClick={() => onInspectResult(id, { result: { indicatorId, label, shown, unit: "ARS/ha" } })}>{shown}</button> : shown;
   }
   return (
-    <DataTable caption="Referencia de demostración · ARS/ha · Dos campañas" numericColumns={[1, 2, 3]} columns={["Estrategia", "Ingresos", "Costos directos", "Margen bruto"]}
+    <DataTable caption="Referencia de ejemplo · ARS/ha · Dos campañas" numericColumns={[1, 2, 3]} columns={["Estrategia", "Ingresos", "Costos directos", "Margen bruto"]}
       rows={rotations.map(({ id, label, income, cost, margin }) => ({ id, selected: id === selectedId,
         cells: [`${id} · ${label}`, value(id, "income", "Ingresos", income), value(id, "cost", "Costos directos", cost), value(id, "margin", "Margen bruto", margin)] }))} />
   );
@@ -65,7 +65,7 @@ export default function EconomyWorkspace({ section, parcelRotations, selectedId,
       {!simulation?.response && <>
         <DemoNotice>La tabla y el gráfico siguientes son la referencia precargada, independiente de los precios y costos declarados.</DemoNotice>
         <EconomicComparison rotations={parcelRotations} selectedId={selectedId} onInspectResult={onInspectResult} />
-        <h3>Margen bruto de demostración</h3>
+        <h3>Margen bruto de ejemplo</h3>
         <ComparisonChart metric={metrics[0]} rotations={parcelRotations} selectedId={selectedId} />
       </>}
     </Panel>

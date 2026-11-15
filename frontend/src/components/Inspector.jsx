@@ -16,7 +16,7 @@ export default function Inspector({ parcel, parcelFacts, strategy, inspection, s
         <dl className="work-readout">{parcelFacts.map(([label, value]) => (
           <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
         ))}</dl>
-        <button type="button" className="review-btn" onClick={onReview}>{simulation?.response ? "Consultar supuestos y procedencia del motor" : "Consultar referencia de demostración"}</button>
+        <button type="button" className="review-btn" onClick={onReview}>{simulation?.response ? "Consultar supuestos y procedencia del motor" : "Consultar referencia de ejemplo"}</button>
       </> : <a className="work-button" href="#parcela/identificacion">Ver ficha en Mi parcela</a>}
     </div>
   </aside>;

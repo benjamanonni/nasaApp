@@ -32,7 +32,7 @@ export default function WorkspaceHeader({ parcels, activeParcel, onSelectParcel,
         </div>
       </div>
       <div className="top-actions">
-        <span className="demo-tag">{engineStatus === "current" ? "MOTOR EJECUTADO · NASA POWER" : engineStatus ? "RESULTADOS POR RECALCULAR" : "DATOS FICTICIOS · DEMO"}</span>
+        <span className="demo-tag">{engineStatus === "current" ? "MOTOR EJECUTADO · NASA POWER" : engineStatus ? "RESULTADOS POR RECALCULAR" : "DATOS FICTICIOS"}</span>
         <button className="print-button" onClick={() => window.print()} type="button">
           <svg aria-hidden="true" className="ico" viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4V9h16v9h-2M6 15h12v6H6z" /></svg>
           Imprimir vista
